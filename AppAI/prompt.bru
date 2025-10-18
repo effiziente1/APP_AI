@@ -1,0 +1,22 @@
+meta {
+  name: prompt
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/api/chat
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "prompt": "What was my previous question",
+    "conversationId": "{{$randomUUID}}"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
