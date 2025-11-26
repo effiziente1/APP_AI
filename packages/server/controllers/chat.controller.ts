@@ -1,5 +1,4 @@
 import type { Request, Response } from "express"
-import { conversationRepository } from "../repositories/conversation"
 import { chatService } from "../services/chat.service"
 import z from "zod"
 
@@ -11,7 +10,7 @@ const chatSchema = z.object({
 })
 
 export const chatController = {
-    async sendMessaage(req: Request, res: Response) {
+    async sendMessage(req: Request, res: Response) {
         const parseResult = chatSchema.safeParse(req.body)
 
         if (!parseResult.success) {
