@@ -18,5 +18,7 @@ import { lucideArrowUp } from '@ng-icons/lucide';
     styleUrl: './chatbot.css',
 })
 export class Chatbot {
-
+    sendMessage() {
+        console.log('Send message')
+    }
 }
