@@ -1,8 +1,8 @@
-<div class="flex flex-col gap-2 items-end border-2 p-2 rounded-3xl focus-within:border-black">
+<form (ngSubmit)="sendMessage()" class="flex flex-col gap-2 items-end border-2 p-2 rounded-3xl focus-within:border-black">
     <textarea name="chatText" hlmTextarea
         class="w-full border-0 shadow-none focus:!border-0 focus:!outline-none focus:!ring-0 resize-none focus:shadow-none hlmTextarea"
         placeholder="Ask anything" maxlength="1000"></textarea>
-    <button hlmBtn class="rounded-full w-9 h-9">
+    <button type="submit" hlmBtn class="rounded-full w-9 h-9">
         <ng-icon hlm name="lucideArrowUp" />
     </button>
-</div>
+</form>
