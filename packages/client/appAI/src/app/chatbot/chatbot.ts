@@ -133,7 +133,7 @@ export class Chatbot {
     }
 
     onKeydown(event: KeyboardEvent) {
-        if (event.key === 'Enter' && !event.shiftKey) {
+        if (event.key === 'Enter' && !event.shiftKey && !this.isLoading()) {
             event.preventDefault();
             this.sendMessage();
         }
