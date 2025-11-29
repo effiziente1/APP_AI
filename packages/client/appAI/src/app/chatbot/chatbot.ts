@@ -3,16 +3,19 @@ import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { HlmIcon } from '@spartan-ng/helm/icon';
-import { lucideArrowUp, lucideAlertCircle, lucideX } from '@ng-icons/lucide';
+import { lucideArrowUp, lucideAlertCircle, lucideX, lucideLoader2 } from '@ng-icons/lucide';
 import { form, Field, required, minLength, maxLength, validate } from '@angular/forms/signals'
 import { Services } from '../utils/services';
 import { lastValueFrom } from 'rxjs';
-import { HlmAlert, HlmAlertDescription, HlmAlertIcon, HlmAlertTitle } from '@spartan-ng/helm/alert';
+import { Message } from '../message/message';
 
-interface ChatMessage {
+export interface ChatMessage {
     role: 'user' | 'assistant';
     content: string;
-    timestamp: Date;
+}
+
+type ChatResponse = {
+    message: string;
 }
 
 @Component({
@@ -23,13 +26,10 @@ interface ChatMessage {
         Field,
         NgIcon,
         HlmIcon,
-        HlmAlert,
-        HlmAlertTitle,
-        HlmAlertDescription,
-        HlmAlertIcon
+        Message
     ],
     providers: [
-        provideIcons({ lucideArrowUp, lucideAlertCircle, lucideX }),
+        provideIcons({ lucideArrowUp, lucideAlertCircle, lucideX, lucideLoader2 }),
     ],
     templateUrl: './chatbot.html',
     styleUrl: './chatbot.css',
@@ -37,12 +37,11 @@ interface ChatMessage {
 })
 export class Chatbot {
     private readonly services = inject(Services);
+    // Chat messages
+    messages = signal<ChatMessage[]>([]);
 
     // Generate once and persist
     private readonly conversationId = signal(crypto.randomUUID());
-
-    // Chat messages
-    messages = signal<ChatMessage[]>([]);
 
     // Error handling
     errorMessage = signal<string | null>(null);
@@ -74,7 +73,7 @@ export class Chatbot {
 
     // Computed signal that aggregates ALL validation and API errors
     // Validation errors are only exposed once the field is dirty
-    allErrors = computed<string[] | null>(() => {
+    allErrors = computed<string[]>(() => {
         const messages: string[] = [];
 
         const field = this.promptForm.prompt();
@@ -95,13 +94,13 @@ export class Chatbot {
             messages.push(apiError);
         }
 
-        return messages.length > 0 ? messages : null;
+        return messages;
     });
 
     async sendMessage() {
         if (this.promptForm().valid()) {
             const userPrompt = this.chatModel().prompt;
-
+            this.messages.update(msgs => [...msgs, { role: 'user', content: userPrompt }]);
             // Clear any previous errors
             this.errorMessage.set(null);
 
@@ -118,8 +117,8 @@ export class Chatbot {
             this.isLoading.set(true);
 
             try {
-                const response = await lastValueFrom(this.services.post<{ response: string }>('chat', payload));
-                console.log('API Response:', response);
+                const message = await lastValueFrom(this.services.post<ChatResponse>('chat', payload));
+                this.messages.update(msgs => [...msgs, { role: 'assistant', content: message.message }]);
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
                 this.errorMessage.set(errorMsg);
@@ -129,7 +128,14 @@ export class Chatbot {
         }
     }
 
-    dismissError() {
+    clearErrors() {
         this.errorMessage.set(null);
+    }
+
+    onKeydown(event: KeyboardEvent) {
+        if (event.key === 'Enter' && !event.shiftKey && !this.isLoading()) {
+            event.preventDefault();
+            this.sendMessage();
+        }
     }
 }
