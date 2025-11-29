@@ -2,7 +2,7 @@
     <app-message [messages]="allErrors()" (clear)="clearErrors()" />
     @if (messages().length > 0) {
     <div class="flex flex-col gap-2">
-        @for (msg of messages(); track $index) {
+        @for (msg of messages(); track msg) {
         <p class="px-3 py-1 rounded-xl max-w-[80%]"
             [class]="msg.role === 'user' ? 'bg-gray-200 self-end text-black' : 'bg-blue-600 self-start text-white'">
             {{ msg.content }}
