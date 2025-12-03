@@ -8,6 +8,7 @@ import { form, Field, required, minLength, maxLength, validate } from '@angular/
 import { Services } from '../utils/services';
 import { lastValueFrom } from 'rxjs';
 import { Message } from '../message/message';
+import { MarkdownModule } from 'ngx-markdown';
 
 export interface ChatMessage {
     role: 'user' | 'assistant';
@@ -26,7 +27,8 @@ type ChatResponse = {
         Field,
         NgIcon,
         HlmIcon,
-        Message
+        Message,
+        MarkdownModule
     ],
     providers: [
         provideIcons({ lucideArrowUp, lucideAlertCircle, lucideX, lucideLoader2 }),

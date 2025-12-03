@@ -16,7 +16,7 @@ export const chatService = {
             model: 'gpt-3.5-turbo',
             input: prompt,
             temperature: 0.2,
-            max_output_tokens: 100,
+            max_output_tokens: 200,
             previous_response_id: conversationRepository.getLastResponseId(conversationId)
         })
         conversationRepository.setLastResponseId(conversationId, response.id)
