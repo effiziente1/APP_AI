@@ -1,7 +1,6 @@
 <div class="flex flex-col h-full gap-3">
     <app-message [messages]="allErrors()" (clear)="clearErrors()" />
-    @if (messages().length > 0) {
-    <div class="flex flex-col gap-2">
+    <div #scrollContainer class="flex-1 overflow-y-auto flex flex-col gap-2 min-h-0">
         @for (msg of messages(); track msg) {
         <p class="px-3 py-1 rounded-xl max-w-[80%]"
             [class]="msg.role === 'user' ? 'bg-gray-200 self-end text-black' : 'bg-blue-600 self-start text-white'">
@@ -15,7 +14,6 @@
         </div>
         }
     </div>
-    }
     <!-- Input Area -->
     <div class="flex flex-col gap-2 items-end border-2 p-2 rounded-3xl focus-within:border-black">
         <textarea [field]="promptForm.prompt" hlmTextarea (keydown)="onKeydown($event)"

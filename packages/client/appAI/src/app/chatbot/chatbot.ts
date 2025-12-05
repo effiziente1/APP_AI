@@ -1,4 +1,4 @@
-import { Component, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy, computed, ViewChild, ElementRef, effect, untracked } from '@angular/core';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -37,6 +37,7 @@ type ChatResponse = {
     styleUrl: './chatbot.css',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class Chatbot {
     private readonly services = inject(Services);
     // Chat messages
@@ -55,6 +56,17 @@ export class Chatbot {
         prompt: '',
     })
 
+    @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLDivElement>;
+
+    constructor() {
+        effect(() => {
+            // Track messages changes
+            this.messages();
+            untracked(() => {
+                this.scrollToBottom();
+            });
+        });
+    }
     promptForm = form(this.chatModel, (fieldPath) => {
         // Core validators
         required(fieldPath.prompt, { message: 'Prompt is required' });
@@ -139,5 +151,17 @@ export class Chatbot {
             event.preventDefault();
             this.sendMessage();
         }
+    }
+
+    private scrollToBottom(): void {
+        setTimeout(() => {
+            if (this.scrollContainer) {
+                const element = this.scrollContainer.nativeElement;
+                element.scrollTo({
+                    top: element.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }, 0);
     }
 }
