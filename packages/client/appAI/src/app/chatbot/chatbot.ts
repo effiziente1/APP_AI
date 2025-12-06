@@ -1,4 +1,4 @@
-import { Component, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy, computed, ViewChild, ElementRef, effect, untracked } from '@angular/core';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -9,6 +9,7 @@ import { Services } from '../utils/services';
 import { lastValueFrom } from 'rxjs';
 import { Message } from '../message/message';
 import { MarkdownModule } from 'ngx-markdown';
+import { Column, GridOption, AngularSlickgridModule } from 'angular-slickgrid';
 
 export interface ChatMessage {
     role: 'user' | 'assistant';
@@ -28,7 +29,8 @@ type ChatResponse = {
         NgIcon,
         HlmIcon,
         Message,
-        MarkdownModule
+        MarkdownModule,
+        AngularSlickgridModule
     ],
     providers: [
         provideIcons({ lucideArrowUp, lucideAlertCircle, lucideX, lucideLoader2 }),
@@ -38,22 +40,54 @@ type ChatResponse = {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Chatbot {
+    @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLDivElement>;
+
     private readonly services = inject(Services);
     // Chat messages
     messages = signal<ChatMessage[]>([]);
-
     // Generate once and persist
     private readonly conversationId = signal(crypto.randomUUID());
-
     // Error handling
     errorMessage = signal<string | null>(null);
-
     // Loading state
     isLoading = signal(false);
+    chatModel = signal({ prompt: '' })
 
-    chatModel = signal({
-        prompt: '',
-    })
+    columnDefinitions: Column[] = [];
+    gridOptions: GridOption = {};
+    dataset: any[] = [];
+
+
+    constructor() {
+        effect(() => {
+            // Track messages changes
+            this.messages();
+            untracked(() => {
+                this.scrollToBottom();
+            });
+        });
+        this.prepareGrid();
+    }
+    prepareGrid() {
+        this.columnDefinitions = [
+            { id: 'title', name: 'Title', field: 'title', sortable: true },
+            { id: 'duration', name: 'Duration (days)', field: 'duration', sortable: true },
+            { id: '%', name: '% Complete', field: 'percentComplete', sortable: true },
+            { id: 'start', name: 'Start', field: 'start' },
+            { id: 'finish', name: 'Finish', field: 'finish' },
+        ];
+
+        this.gridOptions = {
+            enableAutoResize: true,
+            enableSorting: true
+        };
+
+        // fill the dataset with your data (or read it from the DB)
+        this.dataset = [
+            { id: 0, title: 'Task 1', duration: 45, percentComplete: 5, start: '2001-01-01', finish: '2001-01-31' },
+            { id: 1, title: 'Task 2', duration: 33, percentComplete: 34, start: '2001-01-11', finish: '2001-02-04' },
+        ];
+    }
 
     promptForm = form(this.chatModel, (fieldPath) => {
         // Core validators
@@ -95,7 +129,6 @@ export class Chatbot {
         if (apiError) {
             messages.push(apiError);
         }
-
         return messages;
     });
 
@@ -129,7 +162,6 @@ export class Chatbot {
             }
         }
     }
-
     clearErrors() {
         this.errorMessage.set(null);
     }
@@ -139,5 +171,17 @@ export class Chatbot {
             event.preventDefault();
             this.sendMessage();
         }
+    }
+
+    private scrollToBottom(): void {
+        setTimeout(() => {
+            if (this.scrollContainer) {
+                const element = this.scrollContainer.nativeElement;
+                element.scrollTo({
+                    top: element.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }, 0);
     }
 }
