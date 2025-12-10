@@ -125,8 +125,8 @@ export class Chatbot {
             this.isLoading.set(true);
 
             try {
-                const message = await lastValueFrom(this.services.post<ChatResponse>('chat', payload));
-                this.messages.update(msgs => [...msgs, { role: 'assistant', content: message.message }]);
+                const response = await lastValueFrom(this.services.post<ChatResponse>('chat', payload));
+                this.messages.update(msgs => [...msgs, { role: 'assistant', content: response.message }]);
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
                 this.errorMessage.set(errorMsg);
@@ -146,14 +146,30 @@ export class Chatbot {
         }
     }
 
+    onCopy(event: ClipboardEvent): void {
+        const selection = window.getSelection();
+        if (selection) {
+            let selectedText = selection.toString().trim();
+            if (selectedText && event.clipboardData) {
+                event.preventDefault();
+                event.clipboardData.setData('text/plain', selectedText);
+            }
+        }
+    }
+
     private scrollToBottom(): void {
         setTimeout(() => {
             if (this.scrollContainer) {
                 const element = this.scrollContainer.nativeElement;
-                element.scrollTo({
-                    top: element.scrollHeight,
-                    behavior: 'smooth'
-                });
+                const scrollThreshold = 100; // Pixels from the bottom
+                const isScrolledToBottom = element.scrollHeight - element.clientHeight <= element.scrollTop + scrollThreshold;
+
+                if (isScrolledToBottom) {
+                    element.scrollTo({
+                        top: element.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
             }
         }, 0);
     }
