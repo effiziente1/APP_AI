@@ -81,6 +81,11 @@
 
     body {
         padding: 20px;
+        height: 100%;
         @apply bg-background text-foreground;
+    }
+
+    html {
+        height: 100%;
     }
 }

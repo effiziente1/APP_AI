@@ -1,4 +1,4 @@
-import { Component, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy, computed, ViewChild, ElementRef, effect, untracked } from '@angular/core';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -38,22 +38,29 @@ type ChatResponse = {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Chatbot {
+    @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLDivElement>;
+
     private readonly services = inject(Services);
     // Chat messages
     messages = signal<ChatMessage[]>([]);
-
     // Generate once and persist
     private readonly conversationId = signal(crypto.randomUUID());
-
     // Error handling
     errorMessage = signal<string | null>(null);
-
     // Loading state
     isLoading = signal(false);
+    chatModel = signal({ prompt: '' })
 
-    chatModel = signal({
-        prompt: '',
-    })
+    constructor() {
+        effect(() => {
+            // Track messages changes
+            this.messages();
+            untracked(() => {
+                this.scrollToBottom();
+            });
+        });
+    }
+
 
     promptForm = form(this.chatModel, (fieldPath) => {
         // Core validators
@@ -95,7 +102,6 @@ export class Chatbot {
         if (apiError) {
             messages.push(apiError);
         }
-
         return messages;
     });
 
@@ -119,8 +125,8 @@ export class Chatbot {
             this.isLoading.set(true);
 
             try {
-                const message = await lastValueFrom(this.services.post<ChatResponse>('chat', payload));
-                this.messages.update(msgs => [...msgs, { role: 'assistant', content: message.message }]);
+                const response = await lastValueFrom(this.services.post<ChatResponse>('chat', payload));
+                this.messages.update(msgs => [...msgs, { role: 'assistant', content: response.message }]);
             } catch (error) {
                 const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
                 this.errorMessage.set(errorMsg);
@@ -129,7 +135,6 @@ export class Chatbot {
             }
         }
     }
-
     clearErrors() {
         this.errorMessage.set(null);
     }
@@ -139,5 +144,33 @@ export class Chatbot {
             event.preventDefault();
             this.sendMessage();
         }
+    }
+
+    onCopy(event: ClipboardEvent): void {
+        const selection = window.getSelection();
+        if (selection) {
+            let selectedText = selection.toString().trim();
+            if (selectedText && event.clipboardData) {
+                event.preventDefault();
+                event.clipboardData.setData('text/plain', selectedText);
+            }
+        }
+    }
+
+    private scrollToBottom(): void {
+        setTimeout(() => {
+            if (this.scrollContainer) {
+                const element = this.scrollContainer.nativeElement;
+                const scrollThreshold = 100; // Pixels from the bottom
+                const isScrolledToBottom = element.scrollHeight - element.clientHeight <= element.scrollTop + scrollThreshold;
+
+                if (isScrolledToBottom) {
+                    element.scrollTo({
+                        top: element.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }, 0);
     }
 }
