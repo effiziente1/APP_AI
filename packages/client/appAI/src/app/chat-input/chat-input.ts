@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal, input } from '@angular/core';
 import { Field, form, required, minLength, maxLength, validate } from '@angular/forms/signals';
 import { lucideArrowUp } from '@ng-icons/lucide';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -21,6 +21,8 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatInputComponent {
+    isLoading = input<boolean>(false);
+    
     chatModel = signal({ prompt: '' });
 
     promptForm = form(this.chatModel, (fieldPath) => {
@@ -47,18 +49,23 @@ export class ChatInputComponent {
     public onKeydown(event: KeyboardEvent) {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
-            this.sendMessage();
+            // Prevent sending if already loading
+            if (!this.isLoading()) {
+                this.sendMessage();
+            }
         }
     }
 
     public sendMessage() {
-        if (this.promptForm().valid()) {
-            const userPrompt = this.chatModel().prompt;
-            this.send.emit(userPrompt);
-
-            // Reset form immediately
-            this.promptForm.prompt().value.set('');
-            this.promptForm.prompt().reset();
+        // Prevent sending if already loading or form is invalid
+        if (this.isLoading() || !this.promptForm().valid()) {
+            return;
         }
+        
+        const userPrompt = this.chatModel().prompt;
+        this.send.emit(userPrompt);
+
+        // Reset form immediately
+        this.chatModel.set({ prompt: '' });
     }
 }

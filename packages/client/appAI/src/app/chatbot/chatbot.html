@@ -1,5 +1,5 @@
 <div class="flex flex-col h-full gap-3">
     <app-message [messages]="allErrors()" (clear)="clearErrors()" />
     <app-messages class="flex-1 min-h-0" [messages]="messages()" [isLoading]="isLoading()"></app-messages>
-    <app-chat-input (send)="handleSendMessage($event)" />
+    <app-chat-input (send)="handleSendMessage($event)" [isLoading]="isLoading()" />
 </div>

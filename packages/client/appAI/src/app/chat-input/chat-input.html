@@ -2,10 +2,9 @@
     <textarea [field]="promptForm.prompt" hlmTextarea (keydown)="onKeydown($event)" 
         class="w-full border-0 shadow-none focus:border-0! focus:outline-none! focus:ring-0! resize-none focus:shadow-none hlmTextarea"
         placeholder="Ask anything"
-        autofocus>
-    </textarea>
+        autofocus></textarea>
     <button aria-label="Send" (click)="sendMessage()" hlmBtn class="rounded-full w-9 h-9"
-        [disabled]="promptForm().invalid()">
+        [disabled]="promptForm().invalid() || isLoading()">
         <ng-icon hlm name="lucideArrowUp" />
     </button>
 </div>
