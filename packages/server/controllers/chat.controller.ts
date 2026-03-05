@@ -2,6 +2,7 @@ import type { Request, Response } from "express"
 import { chatService } from "../services/chat.service"
 import z from "zod"
 
+
 const chatSchema = z.object({
     prompt: z.string()
         .min(1, 'Prompt is required')

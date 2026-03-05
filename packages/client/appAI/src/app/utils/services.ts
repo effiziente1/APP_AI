@@ -72,7 +72,7 @@ export class Services {
             case 403:
                 return throwError(() => new Error("No Access"));
             case 404:
-                return throwError(() => new Error("Not Found"));
+                return throwError(() => new Error("Error connecting to server, we cannot find the resource."));
             default:
                 // Return an observable with a user-facing error message.
                 return throwError(() => new Error("Unexpected error"));
