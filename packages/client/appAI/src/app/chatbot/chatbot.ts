@@ -7,6 +7,11 @@ import { Message } from '../message/message';
 import { MarkdownModule } from 'ngx-markdown';
 import { MessagesComponent } from '../messages/messages';
 import { ChatInputComponent } from '../chat-input/chat-input';
+const popAudio = new Audio('/assets/sounds/pop.mp3');
+popAudio.volume = 0.3;
+
+const notificationAudio = new Audio('/assets/sounds/notification.mp3');
+notificationAudio.volume = 0.3;
 
 export interface ChatMessage {
     role: 'user' | 'assistant';
@@ -47,6 +52,7 @@ export class Chatbot {
 
     async handleSendMessage(userPrompt: string) {
         this.messages.update(msgs => [...msgs, { role: 'user', content: userPrompt }]);
+        popAudio.play();
         // Clear any previous errors
         this.errorMessage.set(null);
         this.allErrors.set([]);
@@ -62,6 +68,7 @@ export class Chatbot {
         try {
             const response = await lastValueFrom(this.services.post<ChatResponse>('chat', payload));
             this.messages.update(msgs => [...msgs, { role: 'assistant', content: response.message }]);
+            notificationAudio.play();
         } catch (error) {
             const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
             this.errorMessage.set(errorMsg);

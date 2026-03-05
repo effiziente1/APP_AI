@@ -1,9 +1,15 @@
+import fs from 'fs'
+import path from 'path'
 import OpenAI from "openai"
 import { conversationRepository } from "../repositories/conversation"
+import template from '../prompts/chatbox.txt'
 
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 })
+
+const customerInfo = fs.readFileSync(path.join(__dirname, '..', 'prompts', 'Effiziente.md'), 'utf-8')
+const instructions = template.replace('{{customerInfo}}', customerInfo)
 
 type ChatResponse = {
     id: string
@@ -14,6 +20,7 @@ export const chatService = {
     async sendMessage(prompt: string, conversationId: string): Promise<ChatResponse> {
         const response = await client.responses.create({
             model: 'gpt-3.5-turbo',
+            instructions,
             input: prompt,
             temperature: 0.2,
             max_output_tokens: 200,
