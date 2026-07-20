@@ -1,37 +1,28 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal, input } from '@angular/core';
-import { Field, form, required, minLength, maxLength, validate } from '@angular/forms/signals';
+import { form, required, minLength, maxLength, validate, FormField, FormRoot } from '@angular/forms/signals';
 import { lucideArrowUp } from '@ng-icons/lucide';
-import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmIcon } from '@spartan-ng/helm/icon';
-import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 
 @Component({
     selector: 'app-chat-input',
     standalone: true,
     imports: [
-        HlmTextareaImports,
-        HlmButton,
-        HlmIcon,
         NgIcon,
-        Field,
+        FormField,
+        FormRoot,
     ],
     templateUrl: './chat-input.html',
+    styleUrl: './chat-input.css',
     providers: [provideIcons({ lucideArrowUp })],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatInputComponent {
     isLoading = input<boolean>(false);
-    
-    chatModel = signal({ prompt: '' });
 
-    promptForm = form(this.chatModel, (fieldPath) => {
-        // Core validators
+    promptForm = form(signal({ prompt: '' }), (fieldPath) => {
         required(fieldPath.prompt, { message: 'Prompt is required' });
         minLength(fieldPath.prompt, 1, { message: 'Prompt must be at least 1 characters' });
         maxLength(fieldPath.prompt, 1000, { message: 'Prompt cannot exceed 1000 characters' });
-
-        // Custom whitespace-only validator with unique kind
         validate(fieldPath.prompt, ({ value }) => {
             if (value().trim().length === 0) {
                 return {
@@ -57,15 +48,13 @@ export class ChatInputComponent {
     }
 
     public sendMessage() {
-        // Prevent sending if already loading or form is invalid
         if (this.isLoading() || !this.promptForm().valid()) {
             return;
         }
-        
-        const userPrompt = this.chatModel().prompt;
+
+        const userPrompt = this.promptForm().value().prompt;
         this.send.emit(userPrompt);
 
-        // Reset form immediately
-        this.chatModel.set({ prompt: '' });
+        this.promptForm().reset({ prompt: '' });
     }
 }

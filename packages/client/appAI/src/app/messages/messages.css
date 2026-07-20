@@ -1,1 +1,8 @@
-/* Component styles - using Tailwind classes in template instead */
+.messages-scroll {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.message-bubble {
+    max-width: 80%;
+}
