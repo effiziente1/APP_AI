@@ -1,13 +1,7 @@
 <!-- Error Alert: show ALL validation + API errors -->
 @if (messages().length > 0) {
-<div hlmAlert variant="destructive">
-    <ng-icon hlm hlmAlertIcon name="lucideTriangleAlert" />
-    <div hlmAlertDescription>
-        <ul class="list-disc pl-5 space-y-1">
-            @for (msg of messages(); track $index) {
-            <li>{{ msg }}</li>
-            }
-        </ul>
-    </div>
+<div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+    <ng-icon name="lucideTriangleAlert" size="1.1em" class="mt-1 flex-shrink-0" />
+    <ul class="mb-0 ps-3">@for (msg of messages(); track $index) {<li>{{ msg }}</li>}</ul>
 </div>
 }

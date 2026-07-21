@@ -1,7 +1,7 @@
-<div #scrollContainer class="h-full overflow-y-auto flex flex-col gap-2" (copy)="onCopy($event)">
+<div #scrollContainer class="messages-scroll d-flex flex-column gap-2" (copy)="onCopy($event)">
     @for (msg of messages; track msg) {
-      <div class="px-3 py-1 rounded-xl max-w-[80%]"
-           [class]="msg.role === 'user' ? 'bg-gray-200 self-end text-black' : 'bg-blue-600 self-start text-white'">
+      <div class="message-bubble px-3 py-1 rounded-4"
+           [class]="msg.role === 'user' ? 'bg-light align-self-end text-dark' : 'bg-primary align-self-start text-white'">
         <markdown [data]="msg.content"></markdown>
       </div>
     }

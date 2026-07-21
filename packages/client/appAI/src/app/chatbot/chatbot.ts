@@ -34,6 +34,7 @@ type ChatResponse = {
         provideIcons({ lucideAlertCircle, lucideX, lucideLoader2 }),
     ],
     templateUrl: './chatbot.html',
+    styleUrl: './chatbot.css',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Chatbot {

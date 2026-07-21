@@ -1,10 +1,21 @@
-<div class="flex flex-col gap-2 items-end border-2 p-2 rounded-3xl focus-within:border-black">
-    <textarea [field]="promptForm.prompt" hlmTextarea (keydown)="onKeydown($event)" 
-        class="w-full border-0 shadow-none focus:border-0! focus:outline-none! focus:ring-0! resize-none focus:shadow-none hlmTextarea"
-        placeholder="Ask anything"
-        autofocus></textarea>
-    <button aria-label="Send" (click)="sendMessage()" hlmBtn class="rounded-full w-9 h-9"
+<div class="d-flex flex-column align-items-end gap-2 p-2 chat-input">
+    <form [formRoot]="promptForm" class="w-100">
+        <div class="w-100">
+            <textarea (keydown)="onKeydown($event)"
+                class="form-control"
+                placeholder="Ask anything"
+                [formField]="promptForm.prompt"
+                rows="1"
+                autofocus></textarea>
+            @if (promptForm.prompt().dirty()) {
+                @for (error of promptForm.prompt().errors(); track error.kind) {
+                    <div class="text-danger small">{{ error.message }}</div>
+                }
+            }
+        </div>
+    </form>
+    <button type="button" aria-label="Send" (click)="sendMessage()" class="btn btn-dark rounded-circle send-btn"
         [disabled]="promptForm().invalid() || isLoading()">
-        <ng-icon hlm name="lucideArrowUp" />
+        <ng-icon name="lucideArrowUp" size="1.1em" />
     </button>
 </div>

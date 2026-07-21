@@ -15,27 +15,7 @@
       "ES2022",
       "dom"
     ],
-    "module": "preserve",
-    "paths": {
-      "@spartan-ng/helm/icon": [
-        "./libs/ui/icon/src/index.ts"
-      ],
-      "@spartan-ng/helm/textarea": [
-        "./libs/ui/textarea/src/index.ts"
-      ],
-      "@spartan-ng/helm/utils": [
-        "./libs/ui/utils/src/index.ts"
-      ],
-      "@spartan-ng/helm/form-field": [
-        "./libs/ui/form-field/src/index.ts"
-      ],
-      "@spartan-ng/helm/button": [
-        "./libs/ui/button/src/index.ts"
-      ],
-      "@spartan-ng/helm/alert": [
-        "./libs/ui/alert/src/index.ts"
-      ]
-    }
+    "module": "preserve"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
